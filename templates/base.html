@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Instituto Renova{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <img src="{{ url_for('static', filename='img/logo-renova.png') }}" alt="Logo Instituto Renova">
+
+        <div>
+            <div class="brand-title">Instituto Renova</div>
+            <div class="brand-subtitle">Sistema de Verificación de Títulos Académicos</div>
+        </div>
+    </div>
+
+    <nav>
+        <a href="{{ url_for('index') }}">Verificar título</a>
+
+        {% if session.get("admin") %}
+            <a href="{{ url_for('admin') }}">Panel de registros</a>
+            <a href="{{ url_for('salir') }}">Cerrar sesión</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Panel privado</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="main-container">
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            <div class="mensajes">
+                {% for categoria, mensaje in mensajes %}
+                    <div class="mensaje {{ categoria }}">
+                        {{ mensaje }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+<footer class="footer">
+    Instituto Renova · Consulta pública únicamente por código de verificación
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}
+Panel de Registros - Instituto Renova
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-title">
+
+    <div>
+        <h1>Panel de Títulos Académicos</h1>
+        <p>
+            Desde aquí Renova registra nuevos diplomas.  
+            El sistema genera automáticamente el código de verificación.
+        </p>
+    </div>
+
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        Ir a verificación pública
+    </a>
+
+</section>
+
+<section class="admin-layout">
+
+    <div class="admin-form-card">
+
+        <h2>Registrar nuevo título</h2>
+
+        <form method="POST" action="{{ url_for('nuevo_titulo') }}" class="admin-form">
+
+            <div class="form-group full">
+                <label>Nombre completo del estudiante *</label>
+                <input 
+                    type="text" 
+                    name="nombre_estudiante" 
+                    placeholder="Ejemplo: CUERVO BARBOSA ANDRES FELIPE"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Documento *</label>
+                <input 
+                    type="text" 
+                    name="documento" 
+                    placeholder="Ejemplo: C.C. 1000773994"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Título obtenido *</label>
+                <input 
+                    type="text" 
+                    name="titulo_obtenido" 
+                    value="Bachiller Académico"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Acta *</label>
+                <input 
+                    type="text" 
+                    name="acta" 
+                    placeholder="Ejemplo: 2312"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Libro *</label>
+                <input 
+                    type="text" 
+                    name="libro" 
+                    placeholder="Ejemplo: 03"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Folio *</label>
+                <input 
+                    type="text" 
+                    name="folio" 
+                    placeholder="Ejemplo: 18"
+                    required
+                >
+            </div>
+
+            <div class="form-group full">
+                <label>Resolución / Aprobación *</label>
+                <input 
+                    type="text" 
+                    name="resolucion" 
+                    placeholder="Ejemplo: 548 de fecha 15 de junio del 2026"
+                    required
+                >
+            </div>
+
+            <div class="form-group full">
+                <label>Fecha de grado *</label>
+                <input 
+                    type="text" 
+                    name="fecha_grado" 
+                    placeholder="Ejemplo: 15 de junio de 2026"
+                    required
+                >
+            </div>
+
+            <div class="form-group full">
+                <label>Estado del registro</label>
+                <input 
+                    type="text" 
+                    name="estado" 
+                    value="Registrado y válido en el archivo académico institucional"
+                >
+            </div>
+
+            <div class="form-group full">
+                <button type="submit">
+                    Guardar título y generar código
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="records-card">
+
+        <h2>Registros guardados</h2>
+
+        <div class="table-scroll">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Estudiante</th>
+                        <th>Documento</th>
+                        <th>Título</th>
+                        <th>Acta</th>
+                        <th>Libro</th>
+                        <th>Folio</th>
+                        <th>Estado</th>
+                        <th>Ver</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for titulo in titulos %}
+
+                    <tr>
+                        <td class="codigo-tabla">
+                            {{ titulo.codigo }}
+                        </td>
+
+                        <td>
+                            {{ titulo.nombre_estudiante }}
+                        </td>
+
+                        <td>
+                            {{ titulo.documento }}
+                        </td>
+
+                        <td>
+                            {{ titulo.titulo_obtenido }}
+                        </td>
+
+                        <td>
+                            {{ titulo.acta }}
+                        </td>
+
+                        <td>
+                            {{ titulo.libro }}
+                        </td>
+
+                        <td>
+                            {{ titulo.folio }}
+                        </td>
+
+                        <td>
+                            {{ titulo.estado }}
+                        </td>
+
+                        <td>
+                            <a 
+                                href="{{ url_for('verificar', codigo=titulo.codigo) }}" 
+                                target="_blank"
+                                class="table-link"
+                            >
+                                Abrir
+                            </a>
+                        </td>
+
+                        <td>
+                            <form 
+                                method="POST" 
+                                action="{{ url_for('eliminar_titulo', id=titulo.id) }}"
+                                onsubmit="return confirm('¿Está segura de eliminar este registro?');"
+                            >
+                                <button type="submit" class="delete-btn">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="10" class="empty-row">
+                            No hay títulos registrados todavía.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

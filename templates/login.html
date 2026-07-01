@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+Panel Privado - Instituto Renova
+{% endblock %}
+
+{% block content %}
+
+<section class="login-section">
+
+    <div class="login-card">
+
+        <div class="login-logo">
+            <img src="{{ url_for('static', filename='img/logo-renova.png') }}" alt="Instituto Renova">
+        </div>
+
+        <h1>Panel Privado Renova</h1>
+
+        <p>
+            Ingreso administrativo para registrar, consultar y administrar títulos académicos.
+        </p>
+
+        <form method="POST" class="login-form">
+
+            <label>Usuario</label>
+            <input 
+                type="text" 
+                name="usuario" 
+                placeholder="Ingrese el usuario"
+                required
+            >
+
+            <label>Contraseña</label>
+            <input 
+                type="password" 
+                name="clave" 
+                placeholder="Ingrese la contraseña"
+                required
+            >
+
+            <button type="submit">
+                Ingresar al panel
+            </button>
+
+        </form>
+
+        <div class="login-note">
+            Acceso inicial:<br>
+            <strong>Usuario:</strong> admin<br>
+            <strong>Contraseña:</strong> Renova2026
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

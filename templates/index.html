@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+Verificación de Títulos - Instituto Renova
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div class="hero-card">
+
+        <div class="hero-logo">
+            <img src="{{ url_for('static', filename='img/logo-renova.png') }}" alt="Instituto Renova">
+        </div>
+
+        <div class="check-circle">✓</div>
+
+        <h1>Verificación de Títulos Académicos</h1>
+
+        <p class="hero-text">
+            Consulte la validez de diplomas, actas y registros académicos expedidos por
+            <strong>Instituto Renova</strong>. Ingrese el código único que aparece en el documento.
+        </p>
+
+        <form method="POST" class="search-form">
+            <input 
+                type="text" 
+                name="codigo" 
+                placeholder="Ejemplo: REN-BA-2026-2312-03-18" 
+                required
+            >
+
+            <button type="submit">
+                Verificar título
+            </button>
+        </form>
+
+        <div class="example-box">
+            Código de prueba cargado:
+            <strong>REN-BA-2026-2312-03-18</strong>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="info-grid">
+
+    <div class="info-card">
+        <div class="info-icon">🔐</div>
+        <h3>Consulta segura</h3>
+        <p>
+            El sistema no muestra listados públicos de estudiantes. 
+            Solo permite verificar con código único.
+        </p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-icon">🎓</div>
+        <h3>Registro académico</h3>
+        <p>
+            Cada título queda asociado a acta, libro, folio, resolución, fecha de grado y estado.
+        </p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-icon">✅</div>
+        <h3>Validación institucional</h3>
+        <p>
+            La consulta confirma si el documento aparece registrado en el archivo académico de Renova.
+        </p>
+    </div>
+
+</section>
+
+{% endblock %}

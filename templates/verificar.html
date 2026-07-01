@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}
+Resultado de Verificación - Instituto Renova
+{% endblock %}
+
+{% block content %}
+
+<section class="result-section">
+
+    {% if titulo %}
+
+    <div class="result-card verified-card">
+
+        <div class="result-header">
+            <div class="check-circle">✓</div>
+
+            <h1>TÍTULO VERIFICADO</h1>
+
+            <p>
+                El documento consultado se encuentra registrado en el archivo académico institucional de
+                <strong>Instituto Renova</strong>.
+            </p>
+        </div>
+
+        <div class="seal-box">
+            <div class="seal-inner">
+                REGISTRO<br>
+                VERIFICADO
+            </div>
+        </div>
+
+        <div class="data-grid">
+
+            <div class="data-item">
+                <span>Institución</span>
+                <strong>Instituto Renova</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Graduado</span>
+                <strong>{{ titulo.nombre_estudiante }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Documento</span>
+                <strong>{{ titulo.documento }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Título obtenido</span>
+                <strong>{{ titulo.titulo_obtenido }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Acta de grado</span>
+                <strong>{{ titulo.acta }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Libro</span>
+                <strong>{{ titulo.libro }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Folio</span>
+                <strong>{{ titulo.folio }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Resolución / Aprobación</span>
+                <strong>{{ titulo.resolucion }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Fecha de grado</span>
+                <strong>{{ titulo.fecha_grado }}</strong>
+            </div>
+
+            <div class="data-item">
+                <span>Estado</span>
+                <strong>{{ titulo.estado }}</strong>
+            </div>
+
+            <div class="data-item full">
+                <span>Código de verificación</span>
+                <strong>{{ titulo.codigo }}</strong>
+            </div>
+
+        </div>
+
+        {% if qr_archivo %}
+        <div class="qr-box">
+            <img src="{{ url_for('static', filename='qr/' + qr_archivo) }}" alt="Código QR de verificación">
+            <p>QR del enlace directo de verificación</p>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="{{ url_for('index') }}" class="btn">Consultar otro código</a>
+            <button onclick="window.print()" class="btn btn-secondary">Imprimir constancia</button>
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="result-card not-found-card">
+
+        <div class="alert-circle">!</div>
+
+        <h1>REGISTRO NO ENCONTRADO</h1>
+
+        <p>
+            No se encontró ningún título registrado con el siguiente código:
+        </p>
+
+        <div class="code-box">
+            {{ codigo }}
+        </div>
+
+        <p>
+            Verifique que el código esté escrito correctamente o comuníquese con
+            <strong>Instituto Renova</strong>.
+        </p>
+
+        <div class="actions">
+            <a href="{{ url_for('index') }}" class="btn">Volver a consultar</a>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
