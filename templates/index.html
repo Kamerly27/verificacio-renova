@@ -1,77 +1,169 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación de Certificados - Instituto Renova</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block title %}
-Verificación de Títulos - Instituto Renova
-{% endblock %}
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
 
-{% block content %}
+        header {
+            background: #0b3d2e;
+            color: white;
+            padding: 35px 20px;
+            text-align: center;
+        }
 
-<section class="hero">
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
 
-    <div class="hero-card">
+        header p {
+            margin-top: 10px;
+            font-size: 17px;
+        }
 
-        <div class="hero-logo">
-            <img src="{{ url_for('static', filename='img/logo-renova.png') }}" alt="Instituto Renova">
-        </div>
+        .contenedor {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
 
-        <div class="check-circle">✓</div>
+        h2 {
+            color: #0b3d2e;
+            margin-top: 0;
+            text-align: center;
+        }
 
-        <h1>Verificación de Títulos Académicos</h1>
+        .texto {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
 
-        <p class="hero-text">
-            Consulte la validez de diplomas, actas y registros académicos expedidos por
-            <strong>Instituto Renova</strong>. Ingrese el código único que aparece en el documento.
-        </p>
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
 
-        <form method="POST" class="search-form">
-            <input 
-                type="text" 
-                name="codigo" 
-                placeholder="Ejemplo: REN-BA-2026-2312-03-18" 
-                required
-            >
+        button {
+            width: 100%;
+            background: #0b3d2e;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-            <button type="submit">
-                Verificar título
-            </button>
-        </form>
+        button:hover {
+            background: #145c45;
+        }
 
-        <div class="example-box">
-            Código de prueba cargado:
-            <strong>REN-BA-2026-2312-03-18</strong>
-        </div>
+        .mensaje {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
+        .lista {
+            margin-top: 25px;
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .lista strong {
+            color: #0b3d2e;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 35px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .admin {
+            display: block;
+            margin-top: 25px;
+            text-align: center;
+            color: #0b3d2e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>INSTITUTO RENOVA</h1>
+    <p>Sistema oficial de verificación académica institucional</p>
+</header>
+
+<div class="contenedor">
+
+    <h2>Verificar certificado</h2>
+
+    <p class="texto">
+        Consulte la validez de certificados, títulos y constancias emitidas por el Instituto Renova.
+    </p>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            {% for categoria, mensaje in mensajes %}
+                <div class="mensaje">
+                    {{ mensaje }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="text" name="codigo" placeholder="Digite código de verificación o documento" required>
+        <button type="submit">Verificar</button>
+    </form>
+
+    <div class="lista">
+        <strong>Este sistema permite verificar:</strong><br><br>
+        Bachiller Académico<br>
+        Técnicos Laborales<br>
+        Cursos<br>
+        Diplomados<br>
+        Preparación ICFES<br>
+        Preparación CNSC<br>
+        Certificados institucionales
     </div>
 
-</section>
+    <a class="admin" href="{{ url_for('login') }}">Ingreso administrativo</a>
 
-<section class="info-grid">
+</div>
 
-    <div class="info-card">
-        <div class="info-icon">🔐</div>
-        <h3>Consulta segura</h3>
-        <p>
-            El sistema no muestra listados públicos de estudiantes. 
-            Solo permite verificar con código único.
-        </p>
-    </div>
+<footer>
+    Instituto Renova - Verificación oficial de certificados
+</footer>
 
-    <div class="info-card">
-        <div class="info-icon">🎓</div>
-        <h3>Registro académico</h3>
-        <p>
-            Cada título queda asociado a acta, libro, folio, resolución, fecha de grado y estado.
-        </p>
-    </div>
-
-    <div class="info-card">
-        <div class="info-icon">✅</div>
-        <h3>Validación institucional</h3>
-        <p>
-            La consulta confirma si el documento aparece registrado en el archivo académico de Renova.
-        </p>
-    </div>
-
-</section>
-
-{% endblock %}
+</body>
+</html>

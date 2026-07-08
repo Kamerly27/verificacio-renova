@@ -1,233 +1,325 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel RENOVA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block title %}
-Panel de Registros - Instituto Renova
-{% endblock %}
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
 
-{% block content %}
+        header {
+            background: #0b3d2e;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
 
-<section class="admin-title">
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
 
-    <div>
-        <h1>Panel de Títulos Académicos</h1>
-        <p>
-            Desde aquí Renova registra nuevos diplomas.  
-            El sistema genera automáticamente el código de verificación.
-        </p>
+        header p {
+            margin: 6px 0 0;
+        }
+
+        .contenedor {
+            width: 95%;
+            max-width: 1200px;
+            margin: 25px auto;
+        }
+
+        .superior {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .salir {
+            background: #b91c1c;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #0b3d2e;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .full {
+            grid-column: 1 / 3;
+        }
+
+        button {
+            background: #0b3d2e;
+            color: white;
+            border: none;
+            padding: 13px 22px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        .mensaje {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .nota {
+            background: #fff7ed;
+            border-left: 5px solid #f97316;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #0b3d2e;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        .codigo {
+            font-weight: bold;
+            color: #0b3d2e;
+        }
+
+        .btn-eliminar {
+            background: #b91c1c;
+            padding: 8px 12px;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        @media (max-width: 800px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: 1;
+            }
+
+            .superior {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>INSTITUTO RENOVA</h1>
+    <p>Panel Administrativo de Verificación de Certificados</p>
+</header>
+
+<div class="contenedor">
+
+    <div class="superior">
+        <strong>Bachilleres, técnicos laborales, cursos, diplomados, ICFES y CNSC</strong>
+        <a class="salir" href="{{ url_for('salir') }}">Cerrar sesión</a>
     </div>
 
-    <a href="{{ url_for('index') }}" class="btn btn-secondary">
-        Ir a verificación pública
-    </a>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            {% for categoria, mensaje in mensajes %}
+                <div class="mensaje {{ categoria }}">
+                    {{ mensaje }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-</section>
+    <div class="card">
+        <h2>Registrar certificado</h2>
 
-<section class="admin-layout">
-
-    <div class="admin-form-card">
-
-        <h2>Registrar nuevo título</h2>
-
-        <form method="POST" action="{{ url_for('nuevo_titulo') }}" class="admin-form">
-
-            <div class="form-group full">
-                <label>Nombre completo del estudiante *</label>
-                <input 
-                    type="text" 
-                    name="nombre_estudiante" 
-                    placeholder="Ejemplo: CUERVO BARBOSA ANDRES FELIPE"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Documento *</label>
-                <input 
-                    type="text" 
-                    name="documento" 
-                    placeholder="Ejemplo: C.C. 1000773994"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Título obtenido *</label>
-                <input 
-                    type="text" 
-                    name="titulo_obtenido" 
-                    value="Bachiller Académico"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Acta *</label>
-                <input 
-                    type="text" 
-                    name="acta" 
-                    placeholder="Ejemplo: 2312"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Libro *</label>
-                <input 
-                    type="text" 
-                    name="libro" 
-                    placeholder="Ejemplo: 03"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Folio *</label>
-                <input 
-                    type="text" 
-                    name="folio" 
-                    placeholder="Ejemplo: 18"
-                    required
-                >
-            </div>
-
-            <div class="form-group full">
-                <label>Resolución / Aprobación *</label>
-                <input 
-                    type="text" 
-                    name="resolucion" 
-                    placeholder="Ejemplo: 548 de fecha 15 de junio del 2026"
-                    required
-                >
-            </div>
-
-            <div class="form-group full">
-                <label>Fecha de grado *</label>
-                <input 
-                    type="text" 
-                    name="fecha_grado" 
-                    placeholder="Ejemplo: 15 de junio de 2026"
-                    required
-                >
-            </div>
-
-            <div class="form-group full">
-                <label>Estado del registro</label>
-                <input 
-                    type="text" 
-                    name="estado" 
-                    value="Registrado y válido en el archivo académico institucional"
-                >
-            </div>
-
-            <div class="form-group full">
-                <button type="submit">
-                    Guardar título y generar código
-                </button>
-            </div>
-
-        </form>
-
-    </div>
-
-    <div class="records-card">
-
-        <h2>Registros guardados</h2>
-
-        <div class="table-scroll">
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Estudiante</th>
-                        <th>Documento</th>
-                        <th>Título</th>
-                        <th>Acta</th>
-                        <th>Libro</th>
-                        <th>Folio</th>
-                        <th>Estado</th>
-                        <th>Ver</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% for titulo in titulos %}
-
-                    <tr>
-                        <td class="codigo-tabla">
-                            {{ titulo.codigo }}
-                        </td>
-
-                        <td>
-                            {{ titulo.nombre_estudiante }}
-                        </td>
-
-                        <td>
-                            {{ titulo.documento }}
-                        </td>
-
-                        <td>
-                            {{ titulo.titulo_obtenido }}
-                        </td>
-
-                        <td>
-                            {{ titulo.acta }}
-                        </td>
-
-                        <td>
-                            {{ titulo.libro }}
-                        </td>
-
-                        <td>
-                            {{ titulo.folio }}
-                        </td>
-
-                        <td>
-                            {{ titulo.estado }}
-                        </td>
-
-                        <td>
-                            <a 
-                                href="{{ url_for('verificar', codigo=titulo.codigo) }}" 
-                                target="_blank"
-                                class="table-link"
-                            >
-                                Abrir
-                            </a>
-                        </td>
-
-                        <td>
-                            <form 
-                                method="POST" 
-                                action="{{ url_for('eliminar_titulo', id=titulo.id) }}"
-                                onsubmit="return confirm('¿Está segura de eliminar este registro?');"
-                            >
-                                <button type="submit" class="delete-btn">
-                                    Eliminar
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-
-                    {% else %}
-
-                    <tr>
-                        <td colspan="10" class="empty-row">
-                            No hay títulos registrados todavía.
-                        </td>
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-            </table>
-
+        <div class="nota">
+            Para bachilleres puede llenar acta, libro y folio. Para técnicos, cursos, diplomados, ICFES y CNSC puede dejarlos en blanco.
         </div>
 
+        <form method="POST" action="{{ url_for('nuevo_titulo') }}">
+
+            <div class="grid">
+
+                <div>
+                    <label>Nombre completo</label>
+                    <input type="text" name="nombre_estudiante" required>
+                </div>
+
+                <div>
+                    <label>Documento</label>
+                    <input type="text" name="documento" required>
+                </div>
+
+                <div class="full">
+                    <label>Certificado o programa</label>
+                    <input type="text" name="titulo_obtenido" list="programas" placeholder="Ej: Técnico Laboral en Auxiliar Administrativo" required>
+
+                    <datalist id="programas">
+                        <option value="Bachiller Académico">
+                        <option value="Técnico Laboral en Auxiliar Administrativo">
+                        <option value="Técnico Laboral en Atención a la Primera Infancia">
+                        <option value="Técnico Laboral en Seguridad Ocupacional">
+                        <option value="Diplomado">
+                        <option value="Curso">
+                        <option value="Preparación ICFES">
+                        <option value="Preparación CNSC">
+                        <option value="Certificado Institucional">
+                    </datalist>
+                </div>
+
+                <div>
+                    <label>Fecha de grado o expedición</label>
+                    <input type="text" name="fecha_grado" placeholder="Ej: 15 de junio de 2026" required>
+                </div>
+
+                <div>
+                    <label>Resolución o soporte</label>
+                    <input type="text" name="resolucion" placeholder="Opcional">
+                </div>
+
+                <div>
+                    <label>Acta</label>
+                    <input type="text" name="acta" placeholder="Opcional">
+                </div>
+
+                <div>
+                    <label>Libro</label>
+                    <input type="text" name="libro" placeholder="Opcional">
+                </div>
+
+                <div>
+                    <label>Folio</label>
+                    <input type="text" name="folio" placeholder="Opcional">
+                </div>
+
+                <div class="full">
+                    <label>Estado</label>
+                    <textarea name="estado">Registrado y válido en el archivo académico institucional</textarea>
+                </div>
+
+            </div>
+
+            <button type="submit">Guardar certificado</button>
+
+        </form>
     </div>
 
-</section>
+    <div class="card">
+        <h2>Certificados registrados</h2>
 
-{% endblock %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Estudiante</th>
+                    <th>Documento</th>
+                    <th>Certificado</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for titulo in titulos %}
+                <tr>
+                    <td class="codigo">{{ titulo.codigo }}</td>
+                    <td>{{ titulo.nombre_estudiante }}</td>
+                    <td>{{ titulo.documento }}</td>
+                    <td>{{ titulo.titulo_obtenido }}</td>
+                    <td>{{ titulo.fecha_grado }}</td>
+                    <td>{{ titulo.estado }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('eliminar_titulo', id=titulo.id) }}" onsubmit="return confirm('¿Seguro que desea eliminar este registro?');">
+                            <button class="btn-eliminar" type="submit">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">No hay certificados registrados todavía.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

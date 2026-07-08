@@ -1,137 +1,225 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de Verificación - Instituto Renova</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block title %}
-Resultado de Verificación - Instituto Renova
-{% endblock %}
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
 
-{% block content %}
+        header {
+            background: #0b3d2e;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
 
-<section class="result-section">
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        header p {
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .contenedor {
+            max-width: 800px;
+            margin: 35px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .valido {
+            background: #dcfce7;
+            color: #166534;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        .no-valido {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        .dato {
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dato strong {
+            color: #0b3d2e;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .codigo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0b3d2e;
+        }
+
+        .qr {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .qr img {
+            width: 180px;
+            height: 180px;
+        }
+
+        .botones {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .botones a {
+            display: inline-block;
+            background: #0b3d2e;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .botones a.secundario {
+            background: #475569;
+        }
+
+        footer {
+            text-align: center;
+            color: #555;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>INSTITUTO RENOVA</h1>
+    <p>Resultado de verificación académica institucional</p>
+</header>
+
+<div class="contenedor">
 
     {% if titulo %}
 
-    <div class="result-card verified-card">
-
-        <div class="result-header">
-            <div class="check-circle">✓</div>
-
-            <h1>TÍTULO VERIFICADO</h1>
-
-            <p>
-                El documento consultado se encuentra registrado en el archivo académico institucional de
-                <strong>Instituto Renova</strong>.
-            </p>
+        <div class="valido">
+            CERTIFICADO VÁLIDO
         </div>
 
-        <div class="seal-box">
-            <div class="seal-inner">
-                REGISTRO<br>
-                VERIFICADO
-            </div>
+        <div class="dato">
+            <strong>Código de verificación</strong>
+            <span class="codigo">{{ titulo.codigo }}</span>
         </div>
 
-        <div class="data-grid">
+        <div class="dato">
+            <strong>Nombre del estudiante</strong>
+            {{ titulo.nombre_estudiante }}
+        </div>
 
-            <div class="data-item">
-                <span>Institución</span>
-                <strong>Instituto Renova</strong>
-            </div>
+        <div class="dato">
+            <strong>Documento</strong>
+            {{ titulo.documento }}
+        </div>
 
-            <div class="data-item">
-                <span>Graduado</span>
-                <strong>{{ titulo.nombre_estudiante }}</strong>
-            </div>
+        <div class="dato">
+            <strong>Certificado / Programa</strong>
+            {{ titulo.titulo_obtenido }}
+        </div>
 
-            <div class="data-item">
-                <span>Documento</span>
-                <strong>{{ titulo.documento }}</strong>
-            </div>
+        <div class="dato">
+            <strong>Fecha de grado o expedición</strong>
+            {{ titulo.fecha_grado }}
+        </div>
 
-            <div class="data-item">
-                <span>Título obtenido</span>
-                <strong>{{ titulo.titulo_obtenido }}</strong>
-            </div>
+        <div class="dato">
+            <strong>Acta</strong>
+            {{ titulo.acta }}
+        </div>
 
-            <div class="data-item">
-                <span>Acta de grado</span>
-                <strong>{{ titulo.acta }}</strong>
-            </div>
+        <div class="dato">
+            <strong>Libro</strong>
+            {{ titulo.libro }}
+        </div>
 
-            <div class="data-item">
-                <span>Libro</span>
-                <strong>{{ titulo.libro }}</strong>
-            </div>
+        <div class="dato">
+            <strong>Folio</strong>
+            {{ titulo.folio }}
+        </div>
 
-            <div class="data-item">
-                <span>Folio</span>
-                <strong>{{ titulo.folio }}</strong>
-            </div>
+        <div class="dato">
+            <strong>Resolución / soporte</strong>
+            {{ titulo.resolucion }}
+        </div>
 
-            <div class="data-item">
-                <span>Resolución / Aprobación</span>
-                <strong>{{ titulo.resolucion }}</strong>
-            </div>
-
-            <div class="data-item">
-                <span>Fecha de grado</span>
-                <strong>{{ titulo.fecha_grado }}</strong>
-            </div>
-
-            <div class="data-item">
-                <span>Estado</span>
-                <strong>{{ titulo.estado }}</strong>
-            </div>
-
-            <div class="data-item full">
-                <span>Código de verificación</span>
-                <strong>{{ titulo.codigo }}</strong>
-            </div>
-
+        <div class="dato">
+            <strong>Estado</strong>
+            {{ titulo.estado }}
         </div>
 
         {% if qr_archivo %}
-        <div class="qr-box">
-            <img src="{{ url_for('static', filename='qr/' + qr_archivo) }}" alt="Código QR de verificación">
-            <p>QR del enlace directo de verificación</p>
+        <div class="qr">
+            <p><strong>Código QR de verificación</strong></p>
+            <img src="{{ url_for('static', filename='qr/' ~ qr_archivo) }}" alt="Código QR">
         </div>
         {% endif %}
 
-        <div class="actions">
-            <a href="{{ url_for('index') }}" class="btn">Consultar otro código</a>
-            <button onclick="window.print()" class="btn btn-secondary">Imprimir constancia</button>
-        </div>
-
-    </div>
-
     {% else %}
 
-    <div class="result-card not-found-card">
-
-        <div class="alert-circle">!</div>
-
-        <h1>REGISTRO NO ENCONTRADO</h1>
+        <div class="no-valido">
+            NO SE ENCONTRÓ REGISTRO
+        </div>
 
         <p>
-            No se encontró ningún título registrado con el siguiente código:
+            No existe un certificado registrado con el código o documento consultado:
         </p>
 
-        <div class="code-box">
+        <p class="codigo">
             {{ codigo }}
-        </div>
-
-        <p>
-            Verifique que el código esté escrito correctamente o comuníquese con
-            <strong>Instituto Renova</strong>.
         </p>
 
-        <div class="actions">
-            <a href="{{ url_for('index') }}" class="btn">Volver a consultar</a>
-        </div>
-
-    </div>
+        <p>
+            Verifique que el código esté escrito correctamente o comuníquese con el Instituto Renova.
+        </p>
 
     {% endif %}
 
-</section>
+    <div class="botones">
+        <a href="{{ url_for('index') }}">Nueva consulta</a>
+        <a class="secundario" href="{{ url_for('login') }}">Ingreso administrativo</a>
+    </div>
 
-{% endblock %}
+</div>
+
+<footer>
+    Instituto Renova - Sistema oficial de verificación de certificados
+</footer>
+
+</body>
+</html>

@@ -5,24 +5,15 @@ from functools import wraps
 import os
 import re
 import qrcode
+import secrets
 
 
 app = Flask(__name__)
 
-# =====================================================
-# CONFIGURACIÓN GENERAL
-# =====================================================
-
-# En el computador usa esta clave.
-# En Render puede usar una variable SECRET_KEY.
 app.secret_key = os.environ.get("SECRET_KEY", "renova_verificacion_2026")
 
-# En el computador usa SQLite: titulos.db
-# En Render usará la base pagada con DATABASE_URL.
 database_url = os.environ.get("DATABASE_URL", "sqlite:///titulos.db")
 
-# Render puede entregar la URL como postgres://
-# SQLAlchemy necesita postgresql://
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
@@ -31,10 +22,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
+ESTADO_VALIDO = "Registrado y válido en el archivo académico institucional"
 
-# =====================================================
-# MODELO DE TÍTULOS
-# =====================================================
 
 class Titulo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,21 +40,17 @@ class Titulo(db.Model):
     resolucion = db.Column(db.String(250), nullable=False)
     fecha_grado = db.Column(db.String(120), nullable=False)
 
-    estado = db.Column(
-        db.String(180),
-        default="Registrado y válido en el archivo académico institucional"
-    )
+    estado = db.Column(db.String(180), default=ESTADO_VALIDO)
 
     fecha_registro = db.Column(db.DateTime, default=datetime.now)
 
 
-# =====================================================
-# FUNCIONES
-# =====================================================
+def limpiar_documento(documento):
+    return re.sub(r"\D", "", documento or "")
 
-def extraer_anio(fecha_grado):
-    texto = fecha_grado or ""
-    encontrados = re.findall(r"\b(19\d{2}|20\d{2})\b", texto)
+
+def extraer_anio(fecha):
+    encontrados = re.findall(r"\b(19\d{2}|20\d{2})\b", fecha or "")
 
     if encontrados:
         return encontrados[-1]
@@ -73,8 +58,8 @@ def extraer_anio(fecha_grado):
     return str(datetime.now().year)
 
 
-def abreviatura_titulo(titulo_obtenido):
-    texto = (titulo_obtenido or "").lower()
+def abreviatura_titulo(titulo):
+    texto = (titulo or "").lower()
 
     if "bachiller" in texto:
         return "BA"
@@ -82,18 +67,40 @@ def abreviatura_titulo(titulo_obtenido):
     if "técnico" in texto or "tecnico" in texto:
         return "TL"
 
-    return "AC"
+    if "diplomado" in texto:
+        return "DP"
+
+    if "curso" in texto:
+        return "CU"
+
+    if "icfes" in texto:
+        return "IC"
+
+    if "cnsc" in texto:
+        return "CN"
+
+    if "certificado" in texto:
+        return "CE"
+
+    return "RN"
 
 
-def generar_codigo(titulo_obtenido, fecha_grado, acta, libro, folio):
-    programa = abreviatura_titulo(titulo_obtenido)
+def generar_codigo(titulo_obtenido, fecha_grado, acta, libro, folio, documento):
+    tipo = abreviatura_titulo(titulo_obtenido)
     anio = extraer_anio(fecha_grado)
 
-    acta_limpia = str(acta).strip().upper().replace(" ", "")
-    libro_limpio = str(libro).strip().upper().replace(" ", "").zfill(2)
-    folio_limpio = str(folio).strip().upper().replace(" ", "").zfill(2)
+    acta = (acta or "").strip().upper().replace(" ", "")
+    libro = (libro or "").strip().upper().replace(" ", "")
+    folio = (folio or "").strip().upper().replace(" ", "")
 
-    return f"REN-{programa}-{anio}-{acta_limpia}-{libro_limpio}-{folio_limpio}"
+    if acta and libro and folio:
+        return f"REN-{tipo}-{anio}-{acta}-{libro.zfill(2)}-{folio.zfill(2)}"
+
+    documento_limpio = limpiar_documento(documento)
+    final_documento = documento_limpio[-6:] if documento_limpio else "000000"
+    aleatorio = secrets.token_hex(2).upper()
+
+    return f"REN-{tipo}-{anio}-{final_documento}-{aleatorio}"
 
 
 def admin_requerido(funcion):
@@ -122,18 +129,30 @@ def crear_qr(codigo):
     return nombre_archivo
 
 
-# =====================================================
-# RUTAS PÚBLICAS
-# =====================================================
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        codigo = request.form.get("codigo", "").strip().upper()
+        busqueda = request.form.get("codigo", "").strip()
 
-        if not codigo:
-            flash("Digite el código de verificación.", "error")
+        if not busqueda:
+            flash("Digite el código de verificación o documento.", "error")
             return redirect(url_for("index"))
+
+        codigo = busqueda.upper()
+
+        titulo = Titulo.query.filter_by(codigo=codigo).first()
+
+        if titulo:
+            return redirect(url_for("verificar", codigo=titulo.codigo))
+
+        documento_busqueda = limpiar_documento(busqueda)
+
+        if documento_busqueda:
+            titulos = Titulo.query.order_by(Titulo.id.desc()).all()
+
+            for registro in titulos:
+                if limpiar_documento(registro.documento) == documento_busqueda:
+                    return redirect(url_for("verificar", codigo=registro.codigo))
 
         return redirect(url_for("verificar", codigo=codigo))
 
@@ -159,10 +178,6 @@ def verificar(codigo):
     )
 
 
-# =====================================================
-# PANEL PRIVADO
-# =====================================================
-
 @app.route("/admin/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -182,11 +197,7 @@ def login():
 @admin_requerido
 def admin():
     titulos = Titulo.query.order_by(Titulo.id.desc()).all()
-
-    return render_template(
-        "admin.html",
-        titulos=titulos
-    )
+    return render_template("admin.html", titulos=titulos)
 
 
 @app.route("/admin/nuevo", methods=["POST"])
@@ -194,7 +205,9 @@ def admin():
 def nuevo_titulo():
     nombre_estudiante = request.form.get("nombre_estudiante", "").strip().upper()
     documento = request.form.get("documento", "").strip()
+
     titulo_obtenido = request.form.get("titulo_obtenido", "").strip()
+
     acta = request.form.get("acta", "").strip()
     libro = request.form.get("libro", "").strip()
     folio = request.form.get("folio", "").strip()
@@ -202,22 +215,23 @@ def nuevo_titulo():
     fecha_grado = request.form.get("fecha_grado", "").strip()
     estado = request.form.get("estado", "").strip()
 
-    if not nombre_estudiante or not documento or not titulo_obtenido or not acta or not libro or not folio or not resolucion or not fecha_grado:
-        flash("Debe completar todos los campos obligatorios.", "error")
+    if not nombre_estudiante or not documento or not titulo_obtenido or not fecha_grado:
+        flash("Debe completar nombre, documento, certificado o programa y fecha.", "error")
         return redirect(url_for("admin"))
 
     codigo = generar_codigo(
-        titulo_obtenido=titulo_obtenido,
-        fecha_grado=fecha_grado,
-        acta=acta,
-        libro=libro,
-        folio=folio
+        titulo_obtenido,
+        fecha_grado,
+        acta,
+        libro,
+        folio,
+        documento
     )
 
     existe = Titulo.query.filter_by(codigo=codigo).first()
 
     if existe:
-        flash(f"Ya existe un título registrado con el código {codigo}. Revise acta, libro y folio.", "error")
+        flash(f"Ya existe un registro con el código {codigo}.", "error")
         return redirect(url_for("admin"))
 
     nuevo = Titulo(
@@ -225,18 +239,18 @@ def nuevo_titulo():
         nombre_estudiante=nombre_estudiante,
         documento=documento,
         titulo_obtenido=titulo_obtenido,
-        acta=acta,
-        libro=libro,
-        folio=folio,
-        resolucion=resolucion,
+        acta=acta or "No aplica",
+        libro=libro or "No aplica",
+        folio=folio or "No aplica",
+        resolucion=resolucion or "No aplica",
         fecha_grado=fecha_grado,
-        estado=estado or "Registrado y válido en el archivo académico institucional"
+        estado=estado or ESTADO_VALIDO
     )
 
     db.session.add(nuevo)
     db.session.commit()
 
-    flash(f"Título registrado correctamente. Código generado: {codigo}", "ok")
+    flash(f"Certificado registrado correctamente. Código generado: {codigo}", "ok")
 
     return redirect(url_for("admin"))
 
@@ -257,13 +271,8 @@ def eliminar_titulo(id):
 @app.route("/admin/salir")
 def salir():
     session.clear()
-
     return redirect(url_for("index"))
 
-
-# =====================================================
-# CREAR TABLAS Y PRIMER REGISTRO
-# =====================================================
 
 with app.app_context():
     db.create_all()
@@ -283,16 +292,12 @@ with app.app_context():
             folio="18",
             resolucion="548 de fecha 15 de junio del 2026",
             fecha_grado="15 de junio de 2026",
-            estado="Registrado y válido en el archivo académico institucional"
+            estado=ESTADO_VALIDO
         )
 
         db.session.add(titulo_inicial)
         db.session.commit()
 
-
-# =====================================================
-# INICIAR APLICACIÓN
-# =====================================================
 
 if __name__ == "__main__":
     app.run(debug=True)
